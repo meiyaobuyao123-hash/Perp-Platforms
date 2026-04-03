@@ -136,14 +136,15 @@ Perp DEX在架构上主要分为三大流派:
 
 | 特性 | Hyperliquid | dYdX v4 | Lighter | edgeX |
 |------|------------|---------|---------|-------|
-| 底层链 | 自建L1 (HyperBFT) | Cosmos Appchain | 自建链 | StarkEx |
-| 共识机制 | HyperBFT (BFT类) | CometBFT | - | ZK Rollup |
-| 出块速度 | 中位0.2秒 | ~1秒 | 超低延迟 | 超低延迟 |
-| 吞吐量 | 10-20万单/秒(理论100万+) | - | - | - |
-| 最大杠杆 | 50x | 100x | - | - |
-| Maker费率 | 0.01% | 0.02% | 零费率 | - |
-| Taker费率 | 0.035% | 0.05% | 零费率 | - |
-| 交易对数 | 192+ | 100+ | - | - |
+| 底层链 | 自建L1 (HyperBFT) | Cosmos Appchain | 自建ZK-Rollup/ETH | StarkEx ZK-Rollup/ETH |
+| 共识机制 | HyperBFT (BFT类) | CometBFT | ZK-SNARK证明 | ZK-STARK证明 |
+| 撮合延迟 | 中位0.2秒 | ~1秒 | ~5ms撮合，Pro账户Taker~150ms | <10ms |
+| 吞吐量 | 10-20万单/秒(理论100万+) | - | 1万单/秒，链上4000+TPS | 20万单/秒 |
+| 最大杠杆 | 50x | 100x | 50x(BTC/ETH)，山寨币3-15x | 100x |
+| Maker费率 | 0.01% | 0.02% | 0%(标准) / 0.002%(Pro) | 0.012% |
+| Taker费率 | 0.035% | 0.05% | 0%(标准) / 0.02%(Pro) | 0.038% |
+| 交易对数 | 192+ | 100+ | 117-159(含加密/外汇/股票/大宗商品) | 100+ |
+| 结算资产 | USDC | USDC | USDC | USDC |
 
 #### B. AMM/流动性池模式 (Vault Model)
 
@@ -164,14 +165,19 @@ Perp DEX在架构上主要分为三大流派:
 
 **代表: Vertex, Drift, ApeX, Aster**
 
-| 特性 | Vertex | Drift | ApeX | Aster |
-|------|--------|-------|------|-------|
-| 底层链 | Arbitrum | Solana | 多链(ZK) | 多链 |
-| 模式 | 订单簿+AMM | vAMM+JIT流动性 | ZK订单簿 | 订单簿(Pro)+AMM |
-| Maker费率 | 0.015% | - | 0.02% | - |
-| Taker费率 | 0.045% | - | 0.06% | - |
-| 最大杠杆 | 50x | 101x | 100x | 1001x |
-| 特色 | 全能DEX(现货+永续+借贷) | SOL LST作为保证金 | 预测市场衍生品 | 生息抵押品 |
+| 特性 | Drift | ApeX | Aster | Paradex |
+|------|-------|------|-------|---------|
+| 底层链 | Solana | 多链(ZK) | Aster Chain L1 (2026.3上线) | Starknet Appchain |
+| 模式 | vAMM+JIT+DLOB混合 | ZK订单簿 | 订单簿(Pro)+简易模式 | 订单簿+组合保证金 |
+| 撮合延迟 | ~400ms(单Slot) | - | 50ms出块 | 即时执行 |
+| 吞吐量 | 继承Solana 6.5万TPS | - | 10万TPS | 7000+TPS |
+| Maker费率 | -0.0025%(返佣) | 0.02% | 0.01%(Pro) | 0%(散户) / -0.005%(Pro返佣) |
+| Taker费率 | 0.035%(Tier1) / 0.02%(VIP) | 0.06% | 0.035%(Pro，ASTER代币折5%) | 0%(散户) / 0.03%(Pro) |
+| 最大杠杆 | 20x(默认) / 101x(BTC/ETH/SOL) | 100x | 1001x(Degen模式) | 50x |
+| 交易对数 | 40+永续(100+含现货) | - | ~96(含加密/外汇/Meme/股票) | ~455(永续+期权+现货) |
+| 特色 | SOL LST作为保证金，DRIFT质押最高减40%费率 | 预测市场衍生品 | 生息抵押品(asBNB/USDF)，24/7股票永续 | 统一组合保证金(现货/永续/期权)，隐私优先 |
+
+> **注**: Vertex Protocol已于2025年8月被Ink Foundation收购后停止运营，VRTX持有者迁移至INK代币。
 
 ### 2.2 技术创新亮点
 
@@ -328,12 +334,47 @@ Perp DEX在架构上主要分为三大流派:
 7. **移动端体验不足**: 大部分平台的移动端体验远逊于CEX
 8. **跨链体验**: 资产跨链桥接仍然复杂且存在安全风险
 
-**未满足需求:**
-- 真正的机构级基础设施(统一账户、合规接口、审计报告)
-- 跨DEX的聚合流动性和最优执行路由
-- 更丰富的非加密资产交易品种
-- 隐私交易功能(Paradex等正在探索)
-- AI辅助交易和风险管理工具
+**关键竞争赛道图谱（已有大量产品布局）:**
+
+**1. 机构级基础设施** — 赛道成熟度：高
+- **Paradex**(Paradigm孵化): 组合保证金、跨市场风险管理、机构级API/SDK
+- **FalconX**: CFTC注册加密掉期交易商，为Hyperliquid提供5x保证金融资的Prime Brokerage
+- **Hidden Road**(Ripple以$12.5亿收购): 全球机构信用网络，覆盖300+机构，提供清算/融资/PB服务
+- **Fireblocks**: $10T+总转账量，2400+机构用户，合规DeFi接入
+- **Copper ClearLoop**: 离场结算，机构可在50+交易所交易而无需移出托管资产
+- **Hyperliquid**: Sub-accounts子账户、Vault系统(HLP协议金库+用户自建金库)
+- **dYdX**: MegaVault多子金库自动做市、21Shares DYDX ETP机构入口
+
+**2. 跨DEX聚合流动性** — 赛道成熟度：中高
+- **Liquid**: Paradigm领投$760万种子轮，聚合Hyperliquid/Lighter/Ostium，移动优先，创始人为Two Sigma前AI负责人，已促成$5亿+交易量
+- **VOOI**: CZ家族办公室YZi Labs投资，跨链永续聚合器，链抽象余额(CAB)，零Gas
+- **UniDex V3**: 最早的永续聚合器之一，16个流动性源，一键跨链，支持订单跨DEX分割
+- **MUX Protocol**: 多链原生永续DEX+聚合器，最高100x杠杆，零价格影响
+- **LogX**: Arbitrum上50+市场(含exotic和meme)，聚合Binance/Coinbase/OKX流动性
+
+**3. 非加密资产永续合约** — 赛道成熟度：中高，2025-2026最热方向
+- **Ostium**: General Catalyst和Jump Crypto领投$2000万(估值$2.5亿)，专注RWA永续，支持股票/外汇/大宗商品/指数，累计$250亿交易量，95%+OI来自传统市场资产
+- **Aster**: 24/7股票永续合约(Tesla/Meta等)+最高1001x杠杆，累计交易量超$4080亿
+- **Avantis**: Base网络，支持加密/外汇/大宗商品永续，最高100x，零开仓费(仅盈利交易收费)
+- **Kwenta/Synthetix**: 40+交易对覆盖加密/外汇/大宗商品合成资产，2026路线图含股票
+- **Hyperliquid**: 已上线石油永续(日交易量达$17亿)、预IPO股权永续(SpaceX/Anthropic/OpenAI)
+
+**4. 策略保护与暗池交易** — 赛道成熟度：中，多数产品仍在早期
+> "隐私交易"在Perp DEX语境下指的是：隐藏订单流防止MEV front-running、隐藏仓位规模防止清算猎杀、暗池撮合(订单匹配前不可见)。类似传统金融暗池——美国51.8%的股票交易已在暗池中进行。
+
+- **Renegade**: 加密领域首个暗池DEX，已在Arbitrum/Base上线，MPC订单撮合+ZKP结算，端到端隐私，零价差/零滑点
+- **Aster Hidden Orders**: CZ提出"Dark Pool DEX"概念后3周内上线，隐藏限价订单(大小/价格/存在均不可见)，匹配后才公开
+- **Polyhedra Dark Pool DEX**: 基于自研Expander ZK框架，隐藏订单/执行细节/交易者身份/仓位/清算阈值
+- **Paradex**: 隐私优先Perp DEX，Starknet专用应用链
+- **Lighter**: ZK验证驱动，增强隐私性与可扩展性
+
+**5. AI辅助交易与风险管理** — 赛道成熟度：中高，已是$10B级市场
+- **Griffain**: Solana生态AI代理平台，无代码Agent Builder，自动执行DeFi任务，GRIFFAIN代币市值~$4.34亿
+- **AIXBT**: 实时分析400+KOL社交数据，提供市场情报，30万+Twitter粉丝，市值~$3亿
+- **Nansen**: AI驱动链上分析，5亿+标记钱包，Smart Money追踪
+- **Hey Anon**: 意图驱动协议，用自然语言执行复杂DeFi操作(如"在三条链上将组合再平衡为高收益稳定币")
+- **各DEX内置AI**: Hyperliquid/SynFutures/Jupiter正在集成AI代理进行自动交易和策略执行，实时监控抵押品健康度
+- **市场数据**: 2025年Q2，67%的Gen Z交易者激活了至少一个AI交易机器人；AI机器人使恐慌性抛售减少47%
 
 ### 3.6 社区参与模式
 
