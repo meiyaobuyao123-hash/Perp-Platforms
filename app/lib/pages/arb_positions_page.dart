@@ -36,8 +36,10 @@ class _ArbPositionsPageState extends State<ArbPositionsPage> with SingleTickerPr
     final closed = await ArbDatabase.getClosed();
     if (mounted) setState(() { _active = active; _closed = closed; _loading = false; });
 
-    // Start monitoring if there are active positions
-    if (active.isNotEmpty && !_monitoring) _startMonitoring();
+    // Start monitoring if there are active positions (guard against duplicates)
+    if (active.isNotEmpty && !_monitoring) {
+      _startMonitoring();
+    }
   }
 
   /// Foreground monitoring: check every 5 minutes if any position should auto-close.

@@ -268,6 +268,7 @@ class PositionService {
             'https://dydx-rest.publicnode.com/dydxprotocol/subaccounts/subaccount/$address/0'),
       ).timeout(const Duration(seconds: 15));
 
+      if (res.statusCode == 404) return PlatformSummary.empty('dYdX');
       if (res.statusCode != 200) return PlatformSummary.failed('dYdX', 'HTTP ${res.statusCode}');
 
       final data = jsonDecode(res.body);
@@ -286,23 +287,38 @@ class PositionService {
         }
       }
 
+      // Fetch current prices to convert coin qty → USD
+      Map<String, double> prices = {};
+      try {
+        final priceRes = await http.post(
+          Uri.parse('https://api.hyperliquid.xyz/info'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'type': 'allMids'}),
+        ).timeout(const Duration(seconds: 8));
+        if (priceRes.statusCode == 200) {
+          final mids = jsonDecode(priceRes.body) as Map<String, dynamic>;
+          mids.forEach((k, v) => prices[k.toUpperCase()] = double.tryParse(v.toString()) ?? 0);
+        }
+      } catch (_) {}
+
       final positions = perps.map<Position>((p) {
         final perpId = p['perpetual_id'] ?? 0;
         final quantums = BigInt.tryParse(p['quantums']?.toString() ?? '0') ?? BigInt.zero;
 
-        // Decode position size based on perpetual_id
         final coin = _dydxPerpIdToCoin(perpId);
         final decimals = _dydxPerpDecimals(perpId);
         final sizeInCoin = quantums.toDouble() / decimals;
+        final price = prices[coin] ?? 0;
+        final sizeUsd = sizeInCoin.abs() * price;
 
         return Position(
           platform: 'dYdX',
           coin: coin,
           isLong: sizeInCoin > 0,
-          size: sizeInCoin.abs(), // In coin terms, not USD (would need price)
+          size: sizeUsd, // USD notional
           entryPrice: 0,
-          unrealizedPnl: 0, // Cosmos RPC doesn't return this directly
-          marginUsed: 0,
+          unrealizedPnl: 0,
+          marginUsed: price > 0 ? sizeUsd / 20 : 0, // Assume ~20x max leverage
           liquidationPrice: null,
           leverageType: 'cross',
           leverageValue: 0,
@@ -312,7 +328,7 @@ class PositionService {
       return PlatformSummary(
         name: 'dYdX',
         accountValue: usdcBalance,
-        totalMarginUsed: 0,
+        totalMarginUsed: positions.fold(0.0, (s, p) => s + p.marginUsed),
         positions: positions,
       );
     } catch (e) {

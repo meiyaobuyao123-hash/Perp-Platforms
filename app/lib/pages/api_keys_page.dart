@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/key_storage.dart';
+import '../services/trading_service.dart';
 
 class ApiKeysPage extends StatefulWidget {
   const ApiKeysPage({super.key});
@@ -158,8 +159,20 @@ class _ExchangeConfigPageState extends State<_ExchangeConfigPage> {
       }
     }
 
+    // Save temporarily to verify
     for (final f in _fields) {
       await KeyStorage.save(widget.exchange, f, _controllers[f]!.text.trim());
+    }
+
+    // Verify credentials by making a lightweight API call
+    // Only for exchanges that support balance check
+    if (['binance', 'bybit'].contains(widget.exchange)) {
+      final valid = await TradingService.verifyCredentials(widget.exchange);
+      if (!valid) {
+        await KeyStorage.delete(widget.exchange);
+        setState(() { _saving = false; _message = 'API Key 验证失败，请检查后重试'; _success = false; });
+        return;
+      }
     }
 
     setState(() {
@@ -167,7 +180,6 @@ class _ExchangeConfigPageState extends State<_ExchangeConfigPage> {
       _configured = true;
       _message = '保存成功';
       _success = true;
-      // Clear fields after save (don't keep in memory)
       for (final c in _controllers.values) c.clear();
     });
   }

@@ -136,15 +136,16 @@ class FundingService {
   // ── Coin name normalization ──
 
   static String _norm(String raw) {
-    return raw
-        .replaceAll('USDT', '')
-        .replaceAll('USDC', '')
-        .replaceAll('USD', '')
-        .replaceAll('_', '')
-        .replaceAll('-', '')
-        .replaceAll('SWAP', '')
-        .replaceAll('1000', '')
-        .toUpperCase();
+    var s = raw.toUpperCase();
+    // Remove suffixes first (order matters)
+    for (final suffix in ['-USDT-SWAP', '-USDC-SWAP', '-USD-SWAP', '_USDT', '_USDC', '_USD',
+        'USDT', 'USDC', 'SWAP']) {
+      if (s.endsWith(suffix)) { s = s.substring(0, s.length - suffix.length); break; }
+    }
+    // Remove 1000 prefix (Binance uses 1000PEPE etc.)
+    if (s.startsWith('1000') && s.length > 4) s = s.substring(4);
+    s = s.replaceAll('_', '').replaceAll('-', '');
+    return s.isEmpty ? raw.toUpperCase() : s; // fallback to original if empty
   }
 
   // ── Data Sources ──

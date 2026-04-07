@@ -233,9 +233,16 @@ class _ExecuteSectionState extends State<_ExecuteSection> {
     _checkKeys();
   }
 
+  // Platforms that support API order execution
+  static const _executablePlatforms = {'binance', 'bybit', 'okx', 'bitget', 'gate', 'mexc'};
+
+  bool get _longExecutable => _executablePlatforms.contains(opp.longPlatform.toLowerCase());
+  bool get _shortExecutable => _executablePlatforms.contains(opp.shortPlatform.toLowerCase());
+  bool get _bothExecutable => _longExecutable && _shortExecutable;
+
   Future<void> _checkKeys() async {
-    _longReady = await KeyStorage.isConfigured(opp.longPlatform.toLowerCase());
-    _shortReady = await KeyStorage.isConfigured(opp.shortPlatform.toLowerCase());
+    if (_longExecutable) _longReady = await KeyStorage.isConfigured(opp.longPlatform.toLowerCase());
+    if (_shortExecutable) _shortReady = await KeyStorage.isConfigured(opp.shortPlatform.toLowerCase());
     if (mounted) setState(() {});
   }
 
@@ -247,6 +254,18 @@ class _ExecuteSectionState extends State<_ExecuteSection> {
     }
 
     setState(() { _state = 'executing'; _errorMsg = null; });
+
+    // Re-fetch funding rates to confirm spread still exists
+    try {
+      final freshRates = await FundingService.fetchAll();
+      final freshOpp = freshRates.opportunities.where((o) => o.coin == opp.coin).firstOrNull;
+      if (freshOpp == null || freshOpp.annualizedPct < 5) {
+        setState(() { _state = 'error'; _errorMsg = '费率差已收敛，套利机会已关闭'; });
+        return;
+      }
+    } catch (_) {
+      // If can't verify, warn but allow execution
+    }
 
     // Fetch current price to calculate coin quantity
     double? currentPrice;
@@ -344,7 +363,22 @@ class _ExecuteSectionState extends State<_ExecuteSection> {
       const Text('执行套利', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _label)),
       const SizedBox(height: 8),
 
-      if (!_longReady || !_shortReady) ...[
+      if (!_bothExecutable) ...[
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(10)),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Icon(Icons.info_outline, size: 16, color: _third),
+            const SizedBox(width: 8),
+            Expanded(child: Text(
+              '${!_longExecutable ? opp.longPlatform : opp.shortPlatform} 暂不支持 API 下单'
+              '${opp.longPlatform == "HL" || opp.shortPlatform == "HL" ? "（Hyperliquid 需链上签名，开发中）" : ""}。'
+              '\n请在各平台手动执行此套利。',
+              style: const TextStyle(fontSize: 13, color: _third, height: 1.4),
+            )),
+          ]),
+        ),
+      ] else if (!_longReady || !_shortReady) ...[
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(10)),
