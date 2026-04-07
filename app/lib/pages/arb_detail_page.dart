@@ -414,7 +414,12 @@ class _ExecuteSectionState extends State<_ExecuteSection> {
         // Preview
         Builder(builder: (_) {
           final amt = double.tryParse(_amountCtrl.text) ?? 1000;
-          final feeEst = amt * 0.001 * 2;
+          // Fee estimate per platform (taker fees vary)
+          const feeRates = {'HL': 0.00035, 'Binance': 0.0005, 'Bybit': 0.00055,
+            'OKX': 0.0005, 'Bitget': 0.0006, 'Gate': 0.00065, 'MEXC': 0.0006, 'dYdX': 0.0005};
+          final longFee = feeRates[opp.longPlatform] ?? 0.0005;
+          final shortFee = feeRates[opp.shortPlatform] ?? 0.0005;
+          final feeEst = amt * (longFee + shortFee) * 2; // open + close both sides
           final dailyEarn = amt * opp.spread8h * 3;
           final breakEvenDays = dailyEarn > 0 ? (feeEst / dailyEarn).ceil() : 999;
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

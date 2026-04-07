@@ -224,7 +224,7 @@ class PositionService {
           size: size.abs(),
           entryPrice: 0, // GMX API doesn't return entry price directly
           unrealizedPnl: pnlVal,
-          marginUsed: size / 10, // Approximate: assume 10x avg leverage
+          marginUsed: size / 5, // Conservative estimate: ~5x avg leverage for GMX
           liquidationPrice: null,
           leverageType: 'isolated',
           leverageValue: 0,
@@ -235,7 +235,7 @@ class PositionService {
 
       return PlatformSummary(
         name: 'GMX',
-        accountValue: totalSize * 0.15, // Approximate collateral
+        accountValue: totalSize * 0.2, // Rough estimate: ~20% collateral ratio for GMX
         totalMarginUsed: positions.fold(0.0, (s, p) => s + p.marginUsed),
         positions: positions,
       );
@@ -389,7 +389,8 @@ class PositionService {
 
       final positions = openPositions.map<Position>((p) {
         final symbol = p['symbol']?.toString() ?? '?';
-        final coin = symbol.replaceAll('USDT', '').replaceAll('USD', '');
+        var coin = symbol.replaceAll('USDT', '').replaceAll('USD', '');
+        if (coin.isEmpty) coin = symbol; // Fallback to original if stripping made it empty
         final posAmt = double.tryParse(p['positionAmt']?.toString() ?? '0') ?? 0;
         final entryPrice = double.tryParse(p['entryPrice']?.toString() ?? '0') ?? 0;
         final markPrice = double.tryParse(p['markPrice']?.toString() ?? '0') ?? 0;

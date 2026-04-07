@@ -74,7 +74,7 @@ class _FundingArbPageState extends State<FundingArbPage> {
             child: Column(children: [
               Row(children: [
                 _stat('机会', '${filtered.length}', subtitle: '>${_minAnnual.toInt()}% 年化'),
-                _stat('最高年化', filtered.isNotEmpty ? '${filtered.first.annualizedPct.toStringAsFixed(0)}%' : '-',
+                _stat('最高年化', filtered.isNotEmpty ? '${filtered.first.annualizedPct.toStringAsFixed(0)}%' : '—',
                     color: _green),
                 _stat('数据源', '${r.sourcesLoaded}/8',
                     subtitle: r.failedSources.isNotEmpty ? '${r.failedSources.join("/")} 异常' : null),

@@ -205,7 +205,7 @@ class _DataPageState extends State<DataPage> {
     try {
       final raw = await rootBundle.loadString('assets/profitable_profile.json');
       _profile = jsonDecode(raw);
-    } catch (_) {}
+    } catch (e) { debugPrint('DataPage load error: $e'); }
     if (mounted) setState(() => _initial = false);
   }
 
@@ -465,7 +465,8 @@ class _PyramidPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _PyramidPainter old) => true;
+  bool shouldRepaint(covariant _PyramidPainter old) =>
+      old.tiers.length != tiers.length;
 }
 
 // ──────────────────────────────────────
@@ -565,11 +566,11 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalP = data['totalProfitable'] ?? 0;
-    final roi = data['roiDistribution'] ?? {};
-    final acct = data['accountSizeDistribution'] ?? {};
-    final vol = data['volumeDistribution'] ?? {};
-    final cons = (data['consistency'] as List?) ?? [];
+    final totalP = (data['totalProfitable'] as num?)?.toInt() ?? 0;
+    final roi = data['roiDistribution'] as Map<String, dynamic>? ?? {};
+    final acct = data['accountSizeDistribution'] as Map<String, dynamic>? ?? {};
+    final vol = data['volumeDistribution'] as Map<String, dynamic>? ?? {};
+    final cons = (data['consistency'] as List<dynamic>?) ?? [];
 
     return Container(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),

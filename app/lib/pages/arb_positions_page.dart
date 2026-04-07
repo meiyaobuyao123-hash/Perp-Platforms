@@ -241,7 +241,7 @@ class _ArbPositionsPageState extends State<ArbPositionsPage> with SingleTickerPr
         Text('做多 ${pos.longPlatform} · 做空 ${pos.shortPlatform}',
             style: const TextStyle(fontSize: 13, color: _third)),
         const SizedBox(height: 4),
-        Text('开仓 ${pos.openedAt.toString().substring(0, 16)} · ${pos.daysHeld} 天',
+        Text('开仓 ${_fmtDate(pos.openedAt)} · ${pos.daysHeld} 天',
             style: const TextStyle(fontSize: 12, color: _third)),
         const SizedBox(height: 4),
         Text('开仓年化 ${pos.annualizedAtOpen.toStringAsFixed(1)}%',
@@ -272,6 +272,9 @@ class _ArbPositionsPageState extends State<ArbPositionsPage> with SingleTickerPr
     );
   }
 
+  String _fmtDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
   Widget _closedCard(ArbPosition pos) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -289,7 +292,7 @@ class _ArbPositionsPageState extends State<ArbPositionsPage> with SingleTickerPr
         const SizedBox(height: 4),
         Text('${pos.longPlatform} ↔ ${pos.shortPlatform} · \$${pos.positionSize.toStringAsFixed(0)}',
             style: const TextStyle(fontSize: 12, color: _third)),
-        Text('${pos.openedAt.toString().substring(0, 10)} → ${pos.closedAt?.toString().substring(0, 10) ?? "?"}',
+        Text('${_fmtDate(pos.openedAt)} → ${pos.closedAt != null ? _fmtDate(pos.closedAt!) : "?"}',
             style: const TextStyle(fontSize: 12, color: _third)),
       ]),
     );

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 // ──────────────────────────────────────
@@ -65,7 +66,7 @@ class FundingService {
     final allRates = <String, Map<String, double>>{}; // coin → {source: rate8h}
     final failed = <String>[];
 
-    // Parallel fetch all sources
+    // Parallel fetch all sources, 30s overall deadline
     final results = await Future.wait([
       _fetchHL(),
       _fetchDydx(),
@@ -75,7 +76,8 @@ class FundingService {
       _fetchGate(),
       _fetchMexc(),
       _fetchOkx(),
-    ]);
+    ]).timeout(const Duration(seconds: 30), onTimeout: () =>
+        List.filled(8, null as Map<String, double>?));
 
     for (int i = 0; i < results.length; i++) {
       final source = _sourceNames[i];
@@ -169,7 +171,8 @@ class FundingService {
         rates[coin] = fr * 8; // hourly → 8h
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -189,7 +192,8 @@ class FundingService {
         rates[coin] = fr;
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -210,7 +214,8 @@ class FundingService {
         rates[coin] = fr;
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -231,7 +236,8 @@ class FundingService {
         rates[coin] = fr;
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -252,7 +258,8 @@ class FundingService {
         rates[coin] = fr;
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -273,7 +280,8 @@ class FundingService {
         rates[coin] = fr;
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -294,7 +302,8 @@ class FundingService {
         rates[coin] = fr;
       }
       return rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
@@ -320,7 +329,8 @@ class FundingService {
       });
       await Future.wait(futures);
       return rates.isEmpty ? null : rates;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('FundingService error: $e');
       return null;
     }
   }
