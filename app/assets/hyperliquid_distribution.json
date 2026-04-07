@@ -1,0 +1,37 @@
+{
+  "platform": "Hyperliquid",
+  "totalAddresses": 33254,
+  "profitCount": 14626,
+  "lossCount": 18628,
+  "profitPct": 43.98,
+  "tiers": [
+    {
+      "label": ">$1M",
+      "count": 1703,
+      "pct": 5.12
+    },
+    {
+      "label": "$100K-$1M",
+      "count": 5158,
+      "pct": 15.51
+    },
+    {
+      "label": "$1K-$100K",
+      "count": 7243,
+      "pct": 21.78
+    },
+    {
+      "label": "$0-$1K",
+      "count": 522,
+      "pct": 1.57
+    },
+    {
+      "label": "loss",
+      "count": 18628,
+      "pct": 56.02
+    }
+  ],
+  "source": "Hyperliquid Leaderboard API",
+  "scope": "排行榜收录地址 (33.3K)，覆盖全周期交易量>$0 的交易者，90%交易量>$1M",
+  "updateFreq": "CDN缓存约30-60分钟"
+}

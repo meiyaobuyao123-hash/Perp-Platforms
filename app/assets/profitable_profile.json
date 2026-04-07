@@ -1,0 +1,113 @@
+{
+  "generatedAt": "2026-04-06",
+  "totalProfitable": 14866,
+  "totalTraders": 33419,
+  "roiDistribution": {
+    "median": 75.0,
+    "mean": 12201.4,
+    "buckets": [
+      {
+        "label": ">1000%",
+        "count": 2034,
+        "pct": 13.7
+      },
+      {
+        "label": "100%-1000%",
+        "count": 4567,
+        "pct": 30.7
+      },
+      {
+        "label": "50%-100%",
+        "count": 2102,
+        "pct": 14.1
+      },
+      {
+        "label": "10%-50%",
+        "count": 3953,
+        "pct": 26.6
+      },
+      {
+        "label": "0%-10%",
+        "count": 2210,
+        "pct": 14.9
+      }
+    ]
+  },
+  "accountSizeDistribution": {
+    "median": 37970,
+    "buckets": [
+      {
+        "label": ">$1M",
+        "count": 1190,
+        "pct": 8.0
+      },
+      {
+        "label": "$100K-$1M",
+        "count": 5229,
+        "pct": 35.2
+      },
+      {
+        "label": "$10K-$100K",
+        "count": 1997,
+        "pct": 13.4
+      },
+      {
+        "label": "$1K-$10K",
+        "count": 1016,
+        "pct": 6.8
+      },
+      {
+        "label": "<$1K",
+        "count": 5434,
+        "pct": 36.6
+      }
+    ]
+  },
+  "volumeDistribution": {
+    "median": 18289893,
+    "buckets": [
+      {
+        "label": ">$100M",
+        "count": 2336,
+        "pct": 15.7
+      },
+      {
+        "label": "$10M-$100M",
+        "count": 8580,
+        "pct": 57.7
+      },
+      {
+        "label": "$1M-$10M",
+        "count": 1808,
+        "pct": 12.2
+      },
+      {
+        "label": "<$1M",
+        "count": 2142,
+        "pct": 14.4
+      }
+    ]
+  },
+  "consistency": [
+    {
+      "label": "全周期",
+      "count": 14866,
+      "pct": 100.0
+    },
+    {
+      "label": "近一月",
+      "count": 9912,
+      "pct": 66.7
+    },
+    {
+      "label": "近一周",
+      "count": 4119,
+      "pct": 27.7
+    },
+    {
+      "label": "近一天",
+      "count": 10118,
+      "pct": 68.1
+    }
+  ]
+}
